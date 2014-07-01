@@ -26,4 +26,8 @@ public class User {
 		return trips;
 	}
 
+	public Boolean isFriendWith(User anotherUser) {
+		return friends.contains(anotherUser);
+	}
+
 }

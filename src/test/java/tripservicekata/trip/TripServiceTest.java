@@ -22,20 +22,16 @@ public class TripServiceTest {
 	private static final Trip BRASIL = new Trip();
 	private static final Trip LONDON = new Trip();
 	
-	public User loggedInUser;
 	private TripServiceForTest tripServiceForTest;
 
 	@Before
 	public void before() {
 		tripServiceForTest = new TripServiceForTest();
-		loggedInUser = REGISTERED_USER;
 	}
 	
 	@Test(expected=UserNotLoggedInException.class)
 	public void should_validate_logged_in_user() {
-		loggedInUser = GUEST;
-		 
-		tripServiceForTest.getTripsByUser(null);
+		tripServiceForTest.getTripsByUser(null, GUEST);
 	}
 	
 	@Test
@@ -45,7 +41,7 @@ public class TripServiceTest {
 							.withTripsTo(BRASIL)
 							.build();
 		
-		List<Trip> trips = tripServiceForTest.getTripsByUser(stranger);
+		List<Trip> trips = tripServiceForTest.getTripsByUser(stranger, REGISTERED_USER);
 		
 		assertThat(trips, empty());
 	}
@@ -57,7 +53,7 @@ public class TripServiceTest {
 							.withTripsTo(BRASIL, LONDON)
 							.build();
 		
-		List<Trip> trips = tripServiceForTest.getTripsByUser(stranger);
+		List<Trip> trips = tripServiceForTest.getTripsByUser(stranger, REGISTERED_USER);
 		
 		assertThat(trips, hasSize(2));
 	}
@@ -69,11 +65,6 @@ public class TripServiceTest {
 			return user.trips();
 		}
 
-		@Override
-		protected User loggedInUser() {
-			return loggedInUser;
-		}
-		
 	}
 	
 }
