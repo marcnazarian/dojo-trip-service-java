@@ -5,11 +5,14 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static tripservicekata.user.UserBuilder.aUser;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import tripservicekata.exception.UserNotLoggedInException;
 import tripservicekata.user.User;
 
@@ -22,16 +25,18 @@ public class TripServiceTest {
 	private static final Trip BRASIL = new Trip();
 	private static final Trip LONDON = new Trip();
 	
-	private TripServiceForTest tripServiceForTest;
+	private TripService tripService;
+	private ITripDAO tripDAO;
 
 	@Before
 	public void before() {
-		tripServiceForTest = new TripServiceForTest();
+		tripDAO = mock(ITripDAO.class);
+		tripService = new TripService(tripDAO);
 	}
 	
 	@Test(expected=UserNotLoggedInException.class)
 	public void should_validate_logged_in_user() {
-		tripServiceForTest.getTripsByUser(null, GUEST);
+		tripService.getTripsByUser(null, GUEST);
 	}
 	
 	@Test
@@ -41,30 +46,22 @@ public class TripServiceTest {
 							.withTripsTo(BRASIL)
 							.build();
 		
-		List<Trip> trips = tripServiceForTest.getTripsByUser(stranger, REGISTERED_USER);
+		List<Trip> trips = tripService.getTripsByUser(stranger, REGISTERED_USER);
 		
 		assertThat(trips, empty());
 	}
 	
 	@Test
 	public void should_return_trips_if_users_are_friends() {
-		User stranger = aUser()
+		User friend = aUser()
 							.friendWith(ANOTHER_USER, REGISTERED_USER)
 							.withTripsTo(BRASIL, LONDON)
 							.build();
+		when(tripDAO.tripsByUser(friend)).thenReturn(Arrays.asList(BRASIL, LONDON));
 		
-		List<Trip> trips = tripServiceForTest.getTripsByUser(stranger, REGISTERED_USER);
+		List<Trip> trips = tripService.getTripsByUser(friend, REGISTERED_USER);
 		
 		assertThat(trips, hasSize(2));
-	}
-	
-	private class TripServiceForTest extends TripService {
-
-		@Override
-		protected List<Trip> tripsByUser(User user) {
-			return user.trips();
-		}
-
 	}
 	
 }
