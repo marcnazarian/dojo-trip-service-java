@@ -6,6 +6,7 @@ import static org.hamcrest.Matchers.is;
 
 import java.util.List;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import tripservicekata.exception.UserNotLoggedInException;
@@ -20,10 +21,15 @@ public class TripServiceTest {
 	private static final Trip BRASIL = new Trip();
 	
 	public User loggedInUser;
+	private TripServiceForTest tripServiceForTest;
 
+	@Before
+	public void before() {
+		tripServiceForTest = new TripServiceForTest();
+	}
+	
 	@Test(expected=UserNotLoggedInException.class)
 	public void should_validate_logged_in_user() {
-		TripServiceForTest tripServiceForTest = new TripServiceForTest();
 		loggedInUser = GUEST;
 		 
 		tripServiceForTest.getTripsByUser(null);
@@ -31,7 +37,6 @@ public class TripServiceTest {
 	
 	@Test
 	public void should_not_return_any_trips_if_users_are_not_friends() {
-		TripServiceForTest tripServiceForTest = new TripServiceForTest();
 		loggedInUser = REGISTERED_USER;
 		User stranger = new User();
 		stranger.addFriend(ANOTHER_USER);
