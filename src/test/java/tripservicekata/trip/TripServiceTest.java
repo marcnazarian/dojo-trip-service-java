@@ -1,5 +1,11 @@
 package tripservicekata.trip;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.is;
+
+import java.util.List;
+
 import org.junit.Test;
 
 import tripservicekata.exception.UserNotLoggedInException;
@@ -7,18 +13,40 @@ import tripservicekata.user.User;
 
 public class TripServiceTest {
 	
+	private static final User GUEST = null;
+	private static final User REGISTERED_USER = new User();
+	private static final User ANOTHER_USER = new User();
+	
+	private static final Trip BRASIL = new Trip();
+	
+	public User loggedInUser;
+
 	@Test(expected=UserNotLoggedInException.class)
 	public void should_validate_logged_in_user() {
 		TripServiceForTest tripServiceForTest = new TripServiceForTest();
+		loggedInUser = GUEST;
 		 
 		tripServiceForTest.getTripsByUser(null);
+	}
+	
+	@Test
+	public void should_not_return_any_trips_if_users_are_not_friends() {
+		TripServiceForTest tripServiceForTest = new TripServiceForTest();
+		loggedInUser = REGISTERED_USER;
+		User stranger = new User();
+		stranger.addFriend(ANOTHER_USER);
+		stranger.addTrip(BRASIL);
+		
+		List<Trip> trips = tripServiceForTest.getTripsByUser(stranger);
+		
+		assertThat(trips, is(empty()));
 	}
 	
 	private class TripServiceForTest extends TripService {
 
 		@Override
 		protected User loggedInUser() {
-			return null;
+			return loggedInUser;
 		}
 		
 	}
