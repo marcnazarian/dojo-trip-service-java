@@ -3,6 +3,7 @@ package tripservicekata.trip;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
+import static tripservicekata.user.UserBuilder.aUser;
 
 import java.util.List;
 
@@ -39,9 +40,10 @@ public class TripServiceTest {
 	
 	@Test
 	public void should_not_return_any_trips_if_users_are_not_friends() {
-		User stranger = new User();
-		stranger.addFriend(ANOTHER_USER);
-		stranger.addTrip(BRASIL);
+		User stranger = aUser()
+							.friendWith(ANOTHER_USER)
+							.withTripsTo(BRASIL)
+							.build();
 		
 		List<Trip> trips = tripServiceForTest.getTripsByUser(stranger);
 		
@@ -50,11 +52,10 @@ public class TripServiceTest {
 	
 	@Test
 	public void should_return_trips_if_users_are_friends() {
-		User stranger = new User();
-		stranger.addFriend(ANOTHER_USER);
-		stranger.addFriend(REGISTERED_USER);
-		stranger.addTrip(BRASIL);
-		stranger.addTrip(LONDON);
+		User stranger = aUser()
+							.friendWith(ANOTHER_USER, REGISTERED_USER)
+							.withTripsTo(BRASIL, LONDON)
+							.build();
 		
 		List<Trip> trips = tripServiceForTest.getTripsByUser(stranger);
 		
